@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+//npx prisma migrate dev --name migration_1
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+model User{
+  user_id String @id @default(uuid())
+  //email String @unique
+  name String
+  address String
+  phone String @unique
+  password String
+  
+  isAdmin Boolean @default(false)
+
+  Orders Order[]
+}
+
+
+model Product{
+  id Int @id @default(autoincrement())
+  name String
+  added_at DateTime @default(now())
+  description String
+  price Float
+  discount Int
+  special_price Float
+  category_id Int
+  subcategory_id Int 
+  quantity Int
+  image_url String?
+
+  category Category @relation(fields: [category_id], references: [id])
+  subcategory SubCategory @relation(fields: [subcategory_id], references: [id])
+
+  cart_items Cart_item[]
+  order_items Order_item[]
+}
+
+model Category{
+  id Int @id @default(autoincrement())
+  name String @unique
+  products Product[]
+}
+
+
+
+model SubCategory{
+  id             Int @id @default(autoincrement())
+  name           String   
+  products       Product[]  
+}
+
+model Cart{
+  cart_id String @id @default(uuid())
+  user_id String
+  items Cart_item[]
+  
+}
+
+model Cart_item{
+  quantity Int
+  product_id Int
+  product Product @relation(fields: [product_id], references: [id])
+  cart_id String
+  cart Cart @relation(fields: [cart_id], references: [cart_id])
+  @@id([product_id, cart_id])
+}
+
+model Order{
+  order_id String @id @default(uuid())
+  user_id String
+  original_total_price Float
+  discounted_total_price Float
+  order_date DateTime @default(now())
+  status String
+  payment_method String
+  shipping_address String
+  order_items Order_item[]
+  user User @relation(fields: [user_id], references: [user_id])
+}
+
+model Order_item{
+  quantity Int
+  original_price Float
+  discounted_price Float
+  product_id Int
+  product Product @relation(fields: [product_id], references: [id])
+  order_id String
+  order Order @relation(fields: [order_id], references: [order_id])
+  @@id([product_id, order_id])
+}
+model Slider{
+  id Int @id @default(autoincrement())
+  image_url String
+  link String
+  added_at DateTime @default(now())
+  isShown Boolean @default(true)
+}
+
